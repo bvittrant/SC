@@ -14,6 +14,11 @@ import requests
 import os
 from bs4 import BeautifulSoup
 import pandas as pd
+import time
+
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 ###############################################################################
 
@@ -29,18 +34,22 @@ except FileExistsError :
 
 # Get SC Ship page and scroll to the bottom to get all ships loaded
 URL = "https://robertsspaceindustries.com/pledge/ships"
+
 driver = webdriver.Firefox(executable_path="./files/webdrivers/geckodriver")
 driver.get(URL)
-driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
 
-# Save the page to html file if needed
-#with open('./data/ships.html', 'w') as f:
-#    f.write(driver.page_source)
+driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
+time.sleep(5)
+driver.close()
+
 
 ###############################################################################
 
 # Read the driver page with beautifulsoup
 soup = BeautifulSoup(driver.page_source)
+
+#with open("data/Ships_pages_manual.html", 'rb') as fp:
+#    soup = BeautifulSoup(fp, 'html.parser')
 
 # Get the list of ships
 ShipsList = soup.find('ul', attrs={'class':'ships-listing'}).find_all("li")
@@ -66,3 +75,10 @@ for item in ShipsList :
     list_ships = list_ships + [[name, role, url]]
 
 print(list_ships)
+
+###############################################################################
+
+# Convert list of list to dataframe
+
+df = pd.DataFrame(list_ships)
+df
